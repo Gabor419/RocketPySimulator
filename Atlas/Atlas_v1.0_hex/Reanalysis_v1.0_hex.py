@@ -134,7 +134,7 @@ Env.set_atmospheric_model(
 
 # Env.set_atmospheric_model(    
 #     type="Ensemble",                                                                                                  
-#     file=str(BASE_DIR / """SantaMargarida_Ensemble_09to16oct2010to2024.nc"""),                                        
+#     file=str(BASE_DIR / """environment_data/SantaMargarida_Ensemble_09to16oct2010to2024.nc"""),                                        
 #     # This section creates an updated dictionary to read the NetCDF4 files,                                           
 #     # as the built-in ECMWF dictionary inside RocketPy is outdated and can't read NetCDF4 files in the new format     
 #     dictionary= {                                                                                                     
