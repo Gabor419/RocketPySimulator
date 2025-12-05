@@ -114,7 +114,7 @@ Env = Environment(
 # For more information consult the "mean_environment_values.json" file inside the directory.
 
 # import the .json with the mean environment values oustide the defition of the atmospheric model
-with open(BASE_DIR /"""mean_environment_values.json""", "r") as f:
+with open(BASE_DIR /"""environment_data/mean_environment_values.json""", "r") as f:
     data = json.load(f)
 
 Env.set_atmospheric_model(
