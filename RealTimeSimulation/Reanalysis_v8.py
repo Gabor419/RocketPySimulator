@@ -442,7 +442,7 @@ class RealTimeController:
                 # Calibrations
                 "Calibration (sys)", "Calibration (gyro)", "Calibration (accel)", "Calibration (mag)",
                 # Orientations
-                "Roll [deg]", "Pitch [deg]", "Yaw [deg]",
+                "Roll [deg]", "Pitch [deg]", "Precession [deg]",
                 #Angular velocities
                 "Angular velocity (x)", "Angular velocity (y)", "Angular velocity (z)",
                 # Linear accelerations
@@ -607,10 +607,10 @@ class RealTimeController:
     @staticmethod 
     def quat_to_euler(e0, e1, e2, e3):
         """
-        Gives roll, pitch and yaw angles (in degrees) recalling Rocketpy functions
+        Gives roll, pitch and precession angles (in degrees) recalling Rocketpy functions
           roll  = φ (Spin Angle)
           pitch = θ (Nutation Angle)
-          yaw   = ψ (Precession Angle)
+          ψ (Precession Angle)
         """
 
         # I guarantee they are 1D arrays of length 1
@@ -628,15 +628,15 @@ class RealTimeController:
         # 2) Nutation angle θ (Pitch) - 2 arguments: e0, [e1,e2,e3]
         pitch_arr = quaternions_to_nutation(e1_arr, e2_arr)
 
-        # 3) Precession angle ψ (Yaw) - 4 arguments
-        yaw_arr = quaternions_to_precession(e0_arr, e1_arr, e2_arr, e3_arr)
+        # 3) Precession angle ψ - 4 arguments
+        prec_arr = quaternions_to_precession(e0_arr, e1_arr, e2_arr, e3_arr)
 
         # I extract the first element and convert it to float (no ndarray)
         roll  = float(np.asarray(roll_arr).reshape(-1)[0])
         pitch = float(np.asarray(pitch_arr).reshape(-1)[0])
-        yaw   = float(np.asarray(yaw_arr).reshape(-1)[0])
+        prec   = float(np.asarray(prec_arr).reshape(-1)[0])
 
-        return roll, pitch, yaw # degrees
+        return roll, pitch, prec # degrees
 
     # ------------------------------------------------------------------
     # REAL-TIME CONTROL (CALLED BY ROCKETPY)
@@ -714,7 +714,7 @@ class RealTimeController:
             cal_mag = 3
 
             # --- ORIENTATIONS (EULAR ANGLES) ---
-            roll, pitch, yaw = self.quat_to_euler(e0, e1, e2, e3)
+            roll, pitch, prec = self.quat_to_euler(e0, e1, e2, e3)
             
             # --- ENVIRONMENT / ATMOSPHERE (geodetic altitude) ---
             lat_base = self.environment.latitude
@@ -819,7 +819,7 @@ class RealTimeController:
             # --- BUILD CSV ROW (MATCHES HEADER ABOVE) ---
             row = [
                 cal_sys, cal_gyro, cal_accel, cal_mag,
-                f"{roll:.4f}", f"{pitch:.4f}", f"{yaw:.4f}", # Orientations
+                f"{roll:.4f}", f"{pitch:.4f}", f"{prec:.4f}", # Orientations
                 f"{omega1:.4f}", f"{omega2:.4f}", f"{omega3:.4f}", # Ang. Vel.
                 f"{ax_b:.4f}", f"{ay_b:.4f}", f"{az_b:.4f}", # Lin. Acc.
                 f"{atot_x:.4f}", f"{atot_y:.4f}", f"{atot_z:.4f}", # Total Acc.
@@ -1055,7 +1055,7 @@ print(f"  2. {BASE_DIR / 'trajectory_reanalysis_v8.kml'} (KML trajectory)")
 #     # Data from RocketPy (angles, altitude, pressure and temperature)
 #     rpy_roll = flight_obj.phi(t_log)
 #     rpy_pitch = flight_obj.theta(t_log)
-#     rpy_yaw = flight_obj.psi(t_log)
+#     rpy_prec = flight_obj.psi(t_log)
 #     rpy_z = flight_obj.z(t_log) + env.elevation
 #     rpy_p = flight_obj.pressure(t_log)
 #     rpy_T = flight_obj.env.temperature(flight_obj.z(t_log))
@@ -1070,7 +1070,7 @@ print(f"  2. {BASE_DIR / 'trajectory_reanalysis_v8.kml'} (KML trajectory)")
 #     group_orientation = {
 #         "Roll":  {"csv_data": df['orientation_x'].values, "rpy_func": rpy_roll,  "units": "deg"},
 #         "Pitch": {"csv_data": df['orientation_y'].values, "rpy_func": rpy_pitch, "units": "deg"},
-#         "Yaw":   {"csv_data": df['orientation_z'].values, "rpy_func": rpy_yaw,   "units": "deg"},
+#         "Precession":   {"csv_data": df['orientation_z'].values, "rpy_func": rpy_prec,   "units": "deg"},
 #     }
     
 #     group_atm = {
@@ -1137,7 +1137,7 @@ print(f"  2. {BASE_DIR / 'trajectory_reanalysis_v8.kml'} (KML trajectory)")
 # ----------------------------------------------------------------------
 
 # The comparison was limited to five groups of parameters:
-# 1. ORIENTATION (Roll, Pitch, Yaw)
+# 1. ORIENTATION (Roll, Pitch, Precession)
 # 2. ATMOSPHERIC CONDITIONS (Altitude, Pressure, Temperature)
 # 3. GRAVITY VECTOR (Body Frame: Gx, Gy, Gz)
 # 4. LINEAR ACCELERATIONS (Body Frame: ax, ay, az)
